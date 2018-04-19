@@ -24,7 +24,7 @@ class OrderRepository(override val driver: JdbcProfile) extends Repository[Order
 
     def login = column[String]("login")
 
-    def startDate = column[String]("registrationDate")
+    def startDate = column[String]("startDate")
 
     def * = (id.?,login,startDate) <> ((OrderEntity.apply _).tupled, OrderEntity.unapply _)
   }

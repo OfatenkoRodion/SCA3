@@ -10,6 +10,8 @@ case class LanguageEntity(override val id: Option[Long],language:String)   exten
   def withId(id: Long): LanguageEntity = this.copy(id = Some(id))
 }
 
+case class LanguagesList(languages: Seq[LanguageEntity])
+
 class LanguageRepository(override val driver: JdbcProfile) extends Repository[LanguageEntity, Long](driver) {
 
   import dbGroup.driver.AnalysisPostgresProfile.api._
@@ -28,7 +30,10 @@ class LanguageRepository(override val driver: JdbcProfile) extends Repository[La
   }
 
   def getLanguage(language : String): DBIO[Option[LanguageEntity]] = {
-
     tableQuery.filter(_.language === language).result.headOption
+  }
+
+  def getLanguageList:DBIO[Seq[LanguageEntity]]={
+    tableQuery.result
   }
 }

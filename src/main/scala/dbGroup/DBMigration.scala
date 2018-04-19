@@ -26,7 +26,7 @@ trait DBMigrationImpl extends DBMigration  with DbModule {
   val createUserTable =
     TableMigration(userDal.tableQuery)
       .create
-      .addColumns(_.id,_.login,_.password,_.cookies,_.registrationDate)
+      .addColumns(_.id,_.login, _.password,_.email, _.cookies, _.registrationDate)
 
   val createOrderTable =
     TableMigration(orderDal.tableQuery)

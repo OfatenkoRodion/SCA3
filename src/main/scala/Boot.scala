@@ -4,9 +4,10 @@ import akka.http.scaladsl.server.RouteConcatenation
 import akka.stream.ActorMaterializer
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
 import com.typesafe.scalalogging.StrictLogging
+import dbGroup.entities.MetricsList
 import dbGroup.{DBMigrationImpl, DBModuleImpl}
 import module._
-import rest.{LanguageRoutes, ZoomRoutes}
+import rest.{LanguageRoutes, MetricsRoutes, OrderRoutes, UserRoutes}
 
 object Main extends App with RouteConcatenation with StrictLogging {
 
@@ -19,8 +20,10 @@ object Main extends App with RouteConcatenation with StrictLogging {
 
   val bindingFuture = Http().bindAndHandle(
     cors()(
-      new ZoomRoutes(modules).zoomRoutes~
-        new LanguageRoutes(modules).languageRoutes~
+      new LanguageRoutes(modules).languageRoutes~
+        new MetricsRoutes(modules).metricsRoutes~
+        new UserRoutes(modules).userRoutes~
+        new OrderRoutes(modules).orderRoutes~
         SwaggerDocModule.assets ~
         SwaggerDocModule.routes
         )

@@ -25,7 +25,7 @@ class OrderMetricsRepository(override val driver: JdbcProfile) extends Repositor
     def orderId = column[Long]("orderId")
     def metricsId = column[Long]("metricsId")
     def status = column[String]("status")
-    def result = column[Option[String]]("registrationDate")
+    def result = column[Option[String]]("result")
 
     def * = (id.?,orderId, metricsId, status, result) <> ((OrderMetricsEntity.apply _).tupled, OrderMetricsEntity.unapply _)
   }
