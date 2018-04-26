@@ -14,7 +14,7 @@ import util.JsonSupport
 
 import scala.util.{Failure, Success}
 
-@Path("/")
+@Path("/metrics")
 @Api(value = "/metrics", produces = "application/json")
 class MetricsRoutes(modules: RoutesHandlerModule with StrictLogging with ActorModule with Configuration) extends Directives with JsonSupport with SprayJsonSupport {
 
@@ -22,7 +22,7 @@ class MetricsRoutes(modules: RoutesHandlerModule with StrictLogging with ActorMo
   implicit val materializer = ActorMaterializer()
 
 
-  @Path("/metrics/list/{language}")
+  @Path("/list/{language}")
   @ApiOperation(value = "Get metrics list", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
   @ApiResponses(Array(
     new ApiResponse(code = 201, message = "MetricsEntity entitys list", response = classOf[MetricsList])

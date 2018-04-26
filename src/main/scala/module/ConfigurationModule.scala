@@ -28,5 +28,9 @@ trait ConfigurationModuleImpl extends Configuration {
 
   def config = internalConfig
 
+  def folderUrl = config.getString("folderUrl")
+
 }
+
+object ConfigurationModuleClass extends ConfigurationModuleImpl
 

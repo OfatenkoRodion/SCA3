@@ -31,7 +31,7 @@ trait DBMigrationImpl extends DBMigration  with DbModule {
   val createOrderTable =
     TableMigration(orderDal.tableQuery)
       .create
-      .addColumns(_.id,_.login,_.startDate)
+      .addColumns(_.id,_.login,_.startDate, _.link)
 
   val createOrderMetricsTable =
     TableMigration(order_metricsDal.tableQuery)

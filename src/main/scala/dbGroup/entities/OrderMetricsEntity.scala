@@ -30,4 +30,8 @@ class OrderMetricsRepository(override val driver: JdbcProfile) extends Repositor
     def * = (id.?,orderId, metricsId, status, result) <> ((OrderMetricsEntity.apply _).tupled, OrderMetricsEntity.unapply _)
   }
 
+  def findByOrderId (orderId: Long): DBIO[Seq[OrderMetricsEntity]] = {
+    tableQuery.filter(v => v.orderId === orderId).result
+  }
+
 }

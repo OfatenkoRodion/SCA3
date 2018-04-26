@@ -15,7 +15,7 @@ import util.JsonSupport
 
 import scala.util.{Failure, Success}
 
-@Path("/")
+@Path("/language")
 @Api(value = "/language", produces = "application/json")
 class LanguageRoutes(modules: RoutesHandlerModule with StrictLogging with ActorModule with Configuration) extends Directives with JsonSupport with SprayJsonSupport {
 
@@ -23,7 +23,7 @@ class LanguageRoutes(modules: RoutesHandlerModule with StrictLogging with ActorM
   implicit val materializer = ActorMaterializer()
 
 
-  @Path("/language/add/{language}")
+  @Path("/add/{language}")
   @ApiOperation(value = "Add language", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "language", value = "language", required = true, dataType = "string", paramType = "path")))
@@ -40,7 +40,7 @@ class LanguageRoutes(modules: RoutesHandlerModule with StrictLogging with ActorM
     }
   }
 
-  @Path("/language/list")
+  @Path("/list")
   @ApiOperation(value = "Get language list", notes = "", nickname = "", httpMethod = "GET", produces = "application/json")
   @ApiResponses(Array(
     new ApiResponse(code = 201, message = "LanguageEntity entitys list", response = classOf[LanguagesList])

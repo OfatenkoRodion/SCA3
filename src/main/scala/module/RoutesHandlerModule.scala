@@ -4,12 +4,15 @@ import java.util.Date
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import analysis.DownloadFile
+import analysis.javaMetrics.QuantitativeMetricsJava
 import com.typesafe.scalalogging.StrictLogging
 import dbGroup.DBModuleImpl
 import dbGroup.entities._
 import rest.entities.{RequestCreateOrder, RequestCreateUser}
-import util.{JsonSupport, UserCreationException}
+import util.{JsonSupport, Mattcher, UserCreationException}
 
+import scalaz.Scalaz._
 import scala.concurrent.Future
 
 trait RoutesHandlerModule {
@@ -21,6 +24,7 @@ trait RoutesHandlerModule {
   def getMetricsList(language: String): Future[Seq[MetricsEntity]]
   def createUser(request: RequestCreateUser): Future[String]
   def createOrder(requestCreateOrder: RequestCreateOrder): Future[String]
+  def startOrder(orderId: Long): Future[String]
 }
 
 trait RoutesHandlerModuleImpl extends RoutesHandlerModule with DBModuleImpl with StrictLogging with Configuration with JsonSupport {
@@ -77,15 +81,46 @@ trait RoutesHandlerModuleImpl extends RoutesHandlerModule with DBModuleImpl with
 
   def createOrder(requestCreateOrder: RequestCreateOrder): Future[String]={
     for {
-      order <- db.run(orderDal.save(OrderEntity(None, requestCreateOrder.login, new Date().toString)))
+      order <- db.run(orderDal.save(OrderEntity(None, requestCreateOrder.login, new Date().toString,requestCreateOrder.link)))
+
       result <- order.id match {
           case Some(id) =>  requestCreateOrder.metricsList.foreach { metric=>
               db.run(order_metricsDal.save(OrderMetricsEntity(None, id, metric, "Created", None)))
           }
-            Future("Your order has been accepted")
+            Future("Your order has been created")
           case None => Future("Error: can not add an order")
         }
     } yield result
+  }
+
+
+
+
+  def startOrder(orderId: Long): Future[String] ={
+
+    for {
+      file <- downloadFile(orderId)
+      orderMetric <- db.run(order_metricsDal.findByOrderId(orderId))
+      temp <- Future{orderMetric.foreach { u => db.run(metricsDal.getMetricsById(u.metricsId)).map {
+        case Some(entity) => Mattcher.matchCodes(entity.startCode,file)
+        case None => println(" error with " + u.metricsId + " code")
+          }
+        }
+      }
+
+      res <- Future(QuantitativeMetricsJava.getBlankStrCount(file))
+    } yield res
+
+  }
+
+  def downloadFile(orderId: Long): Future[String] ={
+
+    val res: scalaz.OptionT[Future,String] =for {
+      order <- scalaz.OptionT(db.run(orderDal.findByOrderId(orderId)))
+      file <- scalaz.OptionT(Future.successful(Option(DownloadFile.start(order.link,"C:\\Users\\User\\Scala\\Diplom\\orders\\",orderId.toString))))
+    } yield file
+
+    res.run.map(_.get)
   }
 
 }

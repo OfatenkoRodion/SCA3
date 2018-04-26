@@ -47,6 +47,9 @@ libraryDependencies ++= {
     "ch.qos.logback" % "logback-classic" % "1.1.3",
     //"io.jsonwebtoken" % "jjwt" % "0.9.0",
     "com.auth0" % "java-jwt" % "3.3.0",
-    "org.slf4j" % "slf4j-nop" % "1.6.4"
+    "org.slf4j" % "slf4j-nop" % "1.6.4",
+    "commons-io" % "commons-io" % "2.6",
+    "commons-lang" % "commons-lang" % "2.6",
+    "org.scalaz" %% "scalaz-core" % "7.2.20"
   )
 }

@@ -1,6 +1,6 @@
 package util
 
-import dbGroup.entities.{LanguageEntity, LanguagesList, MetricsEntity, MetricsList}
+import dbGroup.entities._
 import de.knutwalker.akka.http.support.CirceHttpSupport
 import de.knutwalker.akka.stream.support.CirceStreamSupport
 import rest.entities.{RequestCreateOrder, RequestCreateUser, ServerResponse}
@@ -18,6 +18,8 @@ trait JsonSupport extends DefaultJsonProtocol with CirceHttpSupport with CirceSt
 
   implicit val requestCreateUserFormat = jsonFormat4(RequestCreateUser)
   implicit val responseCreateUserFormat = jsonFormat1(ServerResponse)
+
+  implicit val orderFormat = jsonFormat4(OrderEntity)
 
 
 }

@@ -35,6 +35,17 @@ class OrderRoutes(modules: RoutesHandlerModule with StrictLogging with ActorModu
     }
   }
 
-  val orderRoutes: Route = createOrder
+  def startOrder = path("order" / LongNumber / "start"){ orderId =>
+    post {
+        onComplete(modules.startOrder(orderId)) {
+          case Success(response) => complete(Created, ServerResponse(response))
+          case Failure(error: UserCreationException) => complete(BadRequest, error._msg)
+          case Failure(ex) =>
+            complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
+        }
+      }
+  }
+
+  val orderRoutes: Route = createOrder ~startOrder
 
 }

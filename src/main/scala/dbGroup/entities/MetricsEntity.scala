@@ -35,4 +35,8 @@ class MetricsRepository(override val driver: JdbcProfile) extends Repository[Met
     tableQuery.filter(_.languageId === landuageId).result
   }
 
+  def  getMetricsById (id : Long): DBIO[Option[MetricsEntity]] ={
+    tableQuery.filter(v => v.id === id).result.headOption
+  }
+
 }
