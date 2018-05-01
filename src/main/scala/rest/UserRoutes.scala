@@ -15,15 +15,24 @@ import util.{JsonSupport, UserCreationException}
 
 import scala.util.{Failure, Success}
 
-@Path("/")
+@Path("/user")
 @Api(value = "/user", produces = "application/json")
 class UserRoutes(modules: RoutesHandlerModule with StrictLogging with ActorModule with Configuration) extends Directives with JsonSupport with SprayJsonSupport {
 
   implicit val system = modules.system
   implicit val materializer = ActorMaterializer()
 
+  @Path("/add")
+  @ApiOperation(value = "Add new user", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "body", value = "RequestCreateUser", required = true,
+      dataType = "rest.entities.RequestCreateUser", paramType = "body")
 
-  def createUser = path("user"){
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 201, message = "ServerResponse entity", response = classOf[ServerResponse])
+  ))
+  def createUser = path("user" / "add"){
     post {
       entity(as[RequestCreateUser]) { entity =>
         onComplete(modules.createUser(entity)) {
@@ -35,6 +44,7 @@ class UserRoutes(modules: RoutesHandlerModule with StrictLogging with ActorModul
       }
     }
   }
+
 
   val userRoutes: Route = createUser
 

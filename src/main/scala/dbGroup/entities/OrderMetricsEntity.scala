@@ -34,4 +34,12 @@ class OrderMetricsRepository(override val driver: JdbcProfile) extends Repositor
     tableQuery.filter(v => v.orderId === orderId).result
   }
 
+  def findById (id: Long): DBIO[Option[OrderMetricsEntity]] = {
+    tableQuery.filter(v => v.id === id).result.headOption
+  }
+
+  def setResult(result:String, idMetricOrder: Long): Unit = {
+
+  }
+
 }

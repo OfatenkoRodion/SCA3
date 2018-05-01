@@ -27,11 +27,11 @@ trait RoutesHandlerModule {
   def startOrder(orderId: Long): Future[String]
 }
 
-trait RoutesHandlerModuleImpl extends RoutesHandlerModule with DBModuleImpl with StrictLogging with Configuration with JsonSupport {
+trait RoutesHandlerModuleImpl extends RoutesHandlerModule with DBModuleImpl with StrictLogging with Configuration with JsonSupport with Mattcher{
   this: Configuration =>
 
-  implicit val materializerZoom = ActorMaterializer()
-  implicit val ecZoom = system.dispatcher
+  override implicit val materializerZoom = ActorMaterializer()
+  override implicit val ecZoom = system.dispatcher
 
   def addLanguage(language:String): Future[LanguageEntity]={
    db.run(languageDal.getLanguage(language)).flatMap {
@@ -102,7 +102,8 @@ trait RoutesHandlerModuleImpl extends RoutesHandlerModule with DBModuleImpl with
       file <- downloadFile(orderId)
       orderMetric <- db.run(order_metricsDal.findByOrderId(orderId))
       temp <- Future{orderMetric.foreach { u => db.run(metricsDal.getMetricsById(u.metricsId)).map {
-        case Some(entity) => Mattcher.matchCodes(entity.startCode,file)
+
+        case Some(entity) =>matchCodes(entity.startCode,file, u.id)
         case None => println(" error with " + u.metricsId + " code")
           }
         }
@@ -117,7 +118,7 @@ trait RoutesHandlerModuleImpl extends RoutesHandlerModule with DBModuleImpl with
 
     val res: scalaz.OptionT[Future,String] =for {
       order <- scalaz.OptionT(db.run(orderDal.findByOrderId(orderId)))
-      file <- scalaz.OptionT(Future.successful(Option(DownloadFile.start(order.link,"C:\\Users\\User\\Scala\\Diplom\\orders\\",orderId.toString))))
+      file <- scalaz.OptionT(Future.successful(Option(DownloadFile.start(order.link, ConfigurationModuleClass.folderUrl,orderId.toString))))
     } yield file
 
     res.run.map(_.get)
