@@ -22,9 +22,9 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[UserEn
 
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
-    def login = column[String]("login")
+    def login = column[String]("login", O.Unique)
     def password = column[String]("password")
-    def email = column[String]("email")
+    def email = column[String]("email", O.Unique)
     def cookies = column[Option[String]]("cookies")
     def registrationDate = column[String]("registrationDate")
 
@@ -37,6 +37,10 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[UserEn
 
   def getUserByEmail(email : String): DBIO[Option[UserEntity]] = {
     tableQuery.filter(_.email === email).result.headOption
+  }
+
+  def updateUserByEmail(email : String,token : String) = {
+    tableQuery.filter(_.email === email).map(user => user.cookies).update(Option(token))
   }
 
 }

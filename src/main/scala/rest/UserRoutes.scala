@@ -45,7 +45,30 @@ class UserRoutes(modules: RoutesHandlerModule with StrictLogging with ActorModul
     }
   }
 
+  @Path("/login")
+  @ApiOperation(value = "Add new user", notes = "", nickname = "", httpMethod = "POST", produces = "application/json")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "body", value = "RequestCreateUser", required = true,
+      dataType = "rest.entities.RequestCreateUser", paramType = "body")
 
-  val userRoutes: Route = createUser
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = 201, message = "ServerResponse entity", response = classOf[ServerResponse])
+  ))
+  def login = path("user" / "login"){
+    post {
+      entity(as[RequestCreateUser]) { entity =>
+        onComplete(modules.login(entity)) {
+          case Success(response) => complete(Created, ServerResponse(response))
+          case Failure(error: UserCreationException) => complete(BadRequest, error._msg)
+          case Failure(ex) =>
+            complete(InternalServerError, s"An error occurred: ${ex.getMessage}")
+        }
+      }
+    }
+  }
+
+
+  val userRoutes: Route = createUser ~login
 
 }

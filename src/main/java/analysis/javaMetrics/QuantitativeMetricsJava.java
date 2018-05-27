@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class QuantitativeMetricsJava  implements JavaMetric  {
+
     static public String getBlankStrCount(String filePathName) throws IOException
     {
         List<String> lines = Files.readAllLines(Paths.get( ConfigurationModuleClass.folderUrl()+filePathName), StandardCharsets.UTF_8);
@@ -68,6 +69,7 @@ public class QuantitativeMetricsJava  implements JavaMetric  {
         }
         return "Number of comments:"+commentsCount;
     }
+    
     static public String getRatioOfComments(String filePathName) throws IOException
     {
         List<String> lines = Files.readAllLines(Paths.get(ConfigurationModuleClass.folderUrl()+filePathName), StandardCharsets.UTF_8);

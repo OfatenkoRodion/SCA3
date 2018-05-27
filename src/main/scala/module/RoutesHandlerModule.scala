@@ -10,9 +10,9 @@ import com.typesafe.scalalogging.StrictLogging
 import dbGroup.DBModuleImpl
 import dbGroup.entities._
 import rest.entities.{RequestCreateOrder, RequestCreateUser}
-import util.{JsonSupport, Mattcher, UserCreationException}
-
+import util.{JsonSupport, JwtImpl, Mattcher, UserCreationException}
 import scalaz.Scalaz._
+
 import scala.concurrent.Future
 
 trait RoutesHandlerModule {
@@ -23,6 +23,7 @@ trait RoutesHandlerModule {
   def getLanguageList: Future[Seq[LanguageEntity]]
   def getMetricsList(language: String): Future[Seq[MetricsEntity]]
   def createUser(request: RequestCreateUser): Future[String]
+  def login(request: RequestCreateUser): Future[String]
   def createOrder(requestCreateOrder: RequestCreateOrder): Future[String]
   def startOrder(orderId: Long): Future[String]
 }
@@ -76,6 +77,37 @@ trait RoutesHandlerModuleImpl extends RoutesHandlerModule with DBModuleImpl with
         "User was created"
        }
      }
+    } yield result
+  }
+
+  def login(request: RequestCreateUser): Future[String] ={
+
+    for {
+
+      ifPasswordEquals <- Future{ if (request.password1.equals(request.password2)) false else true }
+
+      ifLoginExist <-db.run(userDal.getUserByLogin(request.login)).map {
+        case Some(user) => false
+        case None => true}
+
+      ifEmailExist <- db.run(userDal.getUserByEmail(request.email)).map {
+        case Some(user) => false
+        case None => true}
+
+      result <-  {
+        if(ifLoginExist){throw UserCreationException("Exception: login is not exist")} else
+        if(ifEmailExist){throw UserCreationException("Exception: email is not exist")} else
+        if(ifPasswordEquals){throw UserCreationException("Exception: password not equals")} else {
+          db.run(userDal.save(UserEntity(None, request.login, request.password1, request.email, None, new  Date().toString)))
+          db.run(userDal.getUserByEmail(request.email)).map {
+            case Some(user) =>
+              val token=JwtImpl.getToken(user.login,user.password)
+              db.run(userDal.updateUserByEmail(request.email,token))
+              token
+            case None => "Something went wrong"
+          }
+        }
+      }
     } yield result
   }
 

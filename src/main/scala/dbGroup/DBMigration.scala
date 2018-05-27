@@ -40,13 +40,36 @@ trait DBMigrationImpl extends DBMigration  with DbModule {
 
   val migration = VersionedMigration("1", createLanguageTable, createMetricsTable,createUserTable,createOrderTable,createOrderMetricsTable)
 
+  val insertJavaLanguage =
+    SqlMigration("INSERT INTO language (language) values (\'Java\')")
+
+  val insertCSharpLanguage =
+    SqlMigration("INSERT INTO language (language) values (\'C#\')")
+
+  val migration2 = VersionedMigration("2", insertJavaLanguage, insertCSharpLanguage)
+
+  val insertMetrics1 =
+    SqlMigration("INSERT INTO metrics (languageId, description, startCode) values (1,\'getBlankStrCount\',101)")
+
+  val insertMetrics2 =
+    SqlMigration("INSERT INTO metrics (languageId, description, startCode) values (1,\'getCommentsCount\',102)")
+
+  val insertMetrics3 =
+    SqlMigration("INSERT INTO metrics (languageId, description, startCode) values (1,\'getRatioOfComments\',103)")
+
+  val migration3 = VersionedMigration("3", insertMetrics1, insertMetrics2, insertMetrics3)
+
+
   val flyway = new Flyway()
   flyway.setDataSource(ConfigFactory.load().getString("pgdb.db.url"),
     ConfigFactory.load().getString("pgdb.db.user"),
     ConfigFactory.load().getString("pgdb.db.password"))
   flyway.setLocations()
 
-  flyway.setResolvers(Resolver(migration))
+  flyway.setResolvers(Resolver(migration),
+    Resolver(migration2),
+    //Resolver(migration3)
+  )
 
   flyway.migrate()
 
